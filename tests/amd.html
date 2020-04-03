@@ -8,12 +8,82 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 	<meta name="format-detection" content="telephone=no">
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-	<title>mm-000002</title>
+	<title>轮播图</title>
+	<style>
+		#w1 {
+			width: 100%;
+			height: 300px;
+			background-color: red;
+		}
+
+		#w2 {
+			width: 300px;
+			height: 300px;
+		}
+
+		#w3 {
+			width: 200px;
+			height: 200px;
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+		}
+
+		div {
+			font-size: 50px;
+		}
+	</style>
 </head>
 
 <body>
-	<mm-000002 id="widget"></mm-000002>
-	<input type="button" value="test" id="test">
+	<mm-000002 id='w1'>
+		<div>
+			<div>1</div>
+			<div>2</div>
+			<div>3</div>
+			<div>4</div>
+			<div>5</div>
+		</div>
+		<div>6</div>
+		<div>7</div>
+		<div>8</div>
+		<div>9</div>
+		<div>10</div>
+		<div>11</div>
+		<div>12</div>
+	</mm-000002>
+	<mm-000002 id='w2' auto-play show-dot show-nav>
+		<img src="./images/1.png" alt="1">
+		<img src="./images/2.jpg" alt="2">
+		<img src="./images/3.jpg" alt="3">
+		<img src="./images/4.jpg" alt="4">
+		<img src="./images/5.jpg" alt="5">
+		<img src="./images/6.jpg" alt="6">
+		<img src="./images/7.jpg" alt="7">
+		<img src="./images/8.jpg" alt="8">
+	</mm-000002>
+	<br>
+	<mm-000002 id='w3' loop>
+		<div style="width: 200px;">
+			<img src="./images/1.png" alt="1">
+			<img src="./images/2.jpg" alt="2">
+		</div>
+		<div style="width: 200px;">
+			<img src="./images/3.jpg" alt="3">
+			<img src="./images/4.jpg" alt="4">
+		</div>
+		<div style="width: 200px;">
+			<img src="./images/5.jpg" alt="5">
+			<img src="./images/6.jpg" alt="6">
+		</div>
+		</div>
+		<div style="width: 200px;">
+			<img src="./images/7.jpg" alt="7">
+			<img src="./images/8.jpg" alt="8">
+		</div>
+	</mm-000002>
 	<script src="./@dojo/loader/loader.js"></script>
 	<script>
 		var global = window;
@@ -21,9 +91,9 @@
 		require.config({
 			baseUrl: baseUrl,
 			packages: [{
-				name: '@mmstudio/on',
-				location: '@mmstudio/on/dist',
-				main: 'main'
+				name: 'swiper',
+				location: 'swiper/js',
+				main: 'swiper'
 			}]
 		});
 		require(['./tests/test']);

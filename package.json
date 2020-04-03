@@ -1,7 +1,7 @@
 {
 	"name": "@mmstudio/ww000002",
 	"version": "1.0.0",
-	"description": "下拉多选框",
+	"description": "轮播图",
 	"scripts": {
 		"dev": "npm run watch-umd & gulp browser-sync-amd",
 		"ie": "npm run watch & webpack & gulp browser-sync-ie",
@@ -45,7 +45,8 @@
 	],
 	"license": "MIT",
 	"dependencies": {
-		"@mmstudio/on": "^1.0.202003041352"
+		"@mmstudio/on": "^1.0.202003041352",
+		"swiper": "^5.3.6"
 	},
 	"devDependencies": {
 		"@babel/core": "latest",
@@ -54,6 +55,7 @@
 		"@babel/preset-env": "latest",
 		"@babel/runtime": "latest",
 		"@dojo/loader": "latest",
+		"@types/swiper": "^5.2.1",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",
 		"babel-loader": "latest",

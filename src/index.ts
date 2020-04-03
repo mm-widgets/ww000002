@@ -1,63 +1,154 @@
-import on, { emit } from '@mmstudio/on';
+import Swiper from 'swiper';
 
 const no = 'mm-000002';
 
-/**
- * :host表示选中当前组件,使用all:initial;属性,
- * 当外部有css样式要越过shadowDom边界时将该css样式重置为初始值,从而不在影响shaowDom内部的样式.
- * 参考链接https://developers.google.cn/web/fundamentals/web-components/shadowdom#reset,
- * 使用 000002 作为所有样式类的前缀可以作为前置限定，从而避免某些浏览器对shadowdom支持不好，样式错乱的问题,
- * tpl 中可以添加link标签，但是最好使用公网可以访问到的cdn连接，且一定要保证版本号固定，如<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/jstree@3.3.7/dist/themes/default/style.min.css" />
- */
-const tpl = `
+const styles = `
+<link href="//cdn.jsdelivr.net/npm/swiper@5.2.1/css/swiper.css" rel="stylesheet">
 <style>
-.${no} {
-	width: 100%;
+.${no}{
+	width: inherit;
 	height: inherit;
 	overflow: hidden;
 	position: relative;
 }
-:host {
-	all: initial;
+
+.${no} .swiper-slide {
+	text-align: center;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-box-pack: center;
+	-ms-flex-pack: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	-webkit-align-items: center;
+	align-items: center;
 }
 </style>
+`;
 
-<div class="${no}">
-	<div id="n01">Hello <a href="https://mmstudio.gitee.io/">mmstudio</a></div>
+const tpl = `
+${styles}
+<div class='${no}'>
+	<div class='swiper-wrapper'>
+	</div>
+	<div class='swiper-pagination'></div>
+
+	<div class='swiper-button-prev'></div>
+	<div class='swiper-button-next'></div>
+
+	<div class='swiper-scrollbar'></div>
 </div>
 `;
 
-export default class Widget extends HTMLElement {
-	public constructor() {
-		super();
-		const dom = this.attachShadow({ mode: 'closed' });
+export default class CustomCalendar extends HTMLElement {
+	private swiper!: Swiper;
+	// private dom: ShadowRoot;
+	// constructor() {
+	// 	super();
+	// 	 this.dom = this.attachShadow({ mode: 'closed' });
+	// }
+
+	public connectedCallback() {
+		this.style.display = 'inline-block';
+		const dom = document.createElement('div');
+		dom.style.width = 'inherit';
+		dom.style.height = 'inherit';
 		dom.innerHTML = tpl;
-		const s = this.getAttribute('sattr');
-		const n = dom.querySelector<HTMLDivElement>('#n01')!;
-		on(n, 'click', () => {
-			emit(this, 'mmwe-click', true, true);
+		const content = Array.from(this.children);
+		Array.from(this.childNodes).forEach((child) => {
+			this.removeChild(child);
 		});
-		emit(this, 'mmwe-init', true, true, {
-			data: {
-				id: this.id
+		const wrapper = dom.querySelector<HTMLDivElement>('.swiper-wrapper')!;
+		content.forEach((child) => {
+			if (!child.classList.contains('swiper-slide')) {
+				child.classList.add('swiper-slide');
 			}
+			wrapper.appendChild(child);
 		});
-		alert(`widget ${no} inited, attribte: sattr = ${s} `);
+		const nextEl = dom.querySelector<HTMLElement>('.swiper-button-next')!;
+		const prevEl = dom.querySelector<HTMLElement>('.swiper-button-prev')!;
+		const pagination_el = dom.querySelector<HTMLElement>('.swiper-pagination')!;
+		const root = dom.querySelector<HTMLElement>(`.${no}`);
+		this.appendChild(dom);
+
+		const loop = get_boolean_attribute(this, 'loop');
+		const show_dot = get_boolean_attribute(this, 'show-dot');
+		const show_nav = get_boolean_attribute(this, 'show-nav');
+		const auto_play = get_boolean_attribute(this, 'auto-play');
+		const delay = parseInt(this.getAttribute('delay') || '3000', 10);
+		const speed = parseInt(this.getAttribute('speed') || '800', 10);
+
+		const autoplay = auto_play ? {
+			delay
+		} : false;
+
+		const navigation = (() => {
+			if (show_nav) {
+				return {
+					nextEl,
+					prevEl
+				};
+			}
+			nextEl.remove();
+			prevEl.remove();
+			return {} as unknown as undefined;	// 虽然ts定义可以传undefined,但是实际上会报错
+
+		})();
+
+		const pagination = show_dot ? {
+			clickable: true,
+			el: pagination_el
+		} : {} as unknown as undefined;
+
+		this.swiper = new Swiper(root!, {
+			autoplay,
+			effect: 'slide',	// 只有这一种动效支持最好
+			keyboard: {
+				enabled: true,
+				onlyInViewport: true
+			},
+			loop,
+			navigation,
+			pagination,
+			speed
+		});
+		// this.swiper.on('click', () => {
+		// 	this.swiper.clickedSlide;
+		// });
 	}
-	/**
-	 * 方法注释
-	 * @param param 参数注释
-	 */
-	public method01(param: string) {
-		window.console.debug('this is a public method', param);
-		this.method02(param);
+
+	public next() {
+		this.swiper.slideNext();
 	}
-	private method02(param: string) {
-		alert(`This is a private method: ${param}`);
+
+	public prev() {
+		this.swiper.slidePrev();
+	}
+
+	public reset() {
+		this.swiper.slideReset();
+	}
+
+	public goto(index: number) {
+		this.swiper.slideToLoop(index);
 	}
 }
 
 if (!window.customElements.get(no)) {
-	window.customElements.define(no, Widget);
+	window.customElements.define(no, CustomCalendar);
 }
 
+function get_boolean_attribute(node: HTMLElement, attribute: string) {
+	if (node.hasAttribute(attribute)) {
+		const value = node.getAttribute(attribute);
+		if (value) {
+			return value.toLocaleLowerCase() !== 'false';
+		}
+		return true;
+	}
+	return false;
+}
